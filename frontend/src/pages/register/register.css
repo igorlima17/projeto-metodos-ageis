@@ -1,0 +1,112 @@
+@font-face {
+  font-family: 'Cornella';
+  src: url('../assets/fonts/cornella-Regular.otf');
+}
+
+.paginaRegister {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e8e8e8;
+}
+
+.caixaRegister {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 16px;
+  background: #fff;
+  border: 1px solid #e2e2e2;
+  border-radius: 20px;
+  padding: 36px 32px 32px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+}
+
+.petshopRegister {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.logoRegister {
+  font-family: 'Cornella', serif;
+  font-size: 24px;
+  font-weight: 400;
+  color: #111;
+}
+
+.camposRegister {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campoRegister {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tituloCampoRegister {
+  font-size: 12px;
+  font-weight: 500;
+  color: #999;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.campoRegister input {
+  background: #f7f7f7;
+  border: 1px solid #e8e8e8;
+  border-radius: 10px;
+  padding: 11px 14px;
+  color: #111;
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.campoRegister input:focus {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: #fff;
+}
+
+.campoRegister input::placeholder {
+  color: #bbb;
+}
+
+.botaoRegister {
+  width: 100%;
+  margin-top: 20px;
+  padding: 13px;
+  background: #652878;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.botaoRegister:hover {
+  opacity: 0.85;
+}
+
+.rodapeRegister {
+  text-align: center;
+  font-size: 13px;
+  color: #aaa;
+  margin: 20px 0 0;
+}
+
+.linkRodapeRegister {
+  background: none;
+  border: none;
+  color: #652878;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+}
