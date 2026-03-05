@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'Cornella';
-  src: url('../assets/fonts/cornella-Regular.otf');
+  src: url('/frontend/src/assets/fonts/cornella-Regular.otf');
 }
 
 .paginaLogin {
