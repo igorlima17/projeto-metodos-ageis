@@ -4,27 +4,69 @@ public class ClienteService
 {
     private readonly Database _db;
 
-    public ClienteService(Database db) => _db = db;
+    public ClienteService(Database db)
+    {
+        _db = db;
+    }
 
-    // Auth
     public string Cadastrar(string nome, string email, string senha)
     {
-        if (!email.Contains('@')) return "Email invalido.";
-        if (_db.Clientes.Any(c => c.Email == email)) return "Email ja cadastrado.";
-        _db.Clientes.Add(new Cliente { Nome = nome, Email = email, Senha = Database.Hash(senha) });
+        if (!email.Contains('@'))
+        {
+            return "Email invalido.";
+        }
+
+        // Verifica se o email já está cadastrado
+        foreach (var c in _db.Clientes)
+        {
+            if (c.Email == email)
+            {
+                return "Email ja cadastrado.";
+            }
+        }
+
+        Cliente novoCliente = new Cliente();
+        novoCliente.Nome = nome;
+        novoCliente.Email = email;
+        novoCliente.Senha = Database.Hash(senha);
+
+        _db.Clientes.Add(novoCliente);
         _db.SalvarClientes();
         return "Cadastro realizado com sucesso!";
     }
 
-    public Cliente? Login(string email, string senha) =>
-        _db.Clientes.FirstOrDefault(c => c.Email == email && c.Senha == Database.Hash(senha));
+    public Cliente? Login(string email, string senha)
+    {
+        string senhaHash = Database.Hash(senha);
 
-    // Dados pessoais
+        // Procura um cliente com email e senha correspondentes
+        foreach (var c in _db.Clientes)
+        {
+            if (c.Email == email && c.Senha == senhaHash)
+            {
+                return c;
+            }
+        }
+
+        return null;
+    }
+
     public string Atualizar(Cliente cliente, string novoNome, string novoEmail)
     {
-        if (!novoEmail.Contains('@')) return "Email invalido.";
-        if (novoEmail != cliente.Email && _db.Clientes.Any(c => c.Email == novoEmail))
-            return "Email ja cadastrado.";
+        if (!novoEmail.Contains('@'))
+        {
+            return "Email invalido.";
+        }
+
+        // Verifica se o novo email já pertence a outro cliente
+        foreach (var c in _db.Clientes)
+        {
+            if (c.Email == novoEmail && c.Email != cliente.Email)
+            {
+                return "Email ja cadastrado.";
+            }
+        }
+
         cliente.Nome = novoNome;
         cliente.Email = novoEmail;
         _db.SalvarClientes();
@@ -33,6 +75,7 @@ public class ClienteService
 
     public string Deletar(Cliente cliente)
     {
+        // Remove todos os agendamentos do cliente antes de deletar a conta
         _db.Agendamentos.RemoveAll(a => a.EmailCliente == cliente.Email);
         _db.Clientes.Remove(cliente);
         _db.SalvarClientes();
@@ -40,50 +83,117 @@ public class ClienteService
         return "Conta deletada.";
     }
 
-    // Pets
     public string CadastrarPet(Cliente cliente, string nome, string especie, string raca)
     {
-        if (cliente.Pets.Any(p => p.Nome.ToLower() == nome.ToLower()))
-            return "Voce ja tem um pet com esse nome.";
-        cliente.Pets.Add(new Pet { Nome = nome, Especie = especie, Raca = raca });
+        // Verifica se já existe um pet com o mesmo nome
+        foreach (var p in cliente.Pets)
+        {
+            if (p.Nome.ToLower() == nome.ToLower())
+            {
+                return "Voce ja tem um pet com esse nome.";
+            }
+        }
+
+        Pet novoPet = new Pet();
+        novoPet.Nome = nome;
+        novoPet.Especie = especie;
+        novoPet.Raca = raca;
+
+        cliente.Pets.Add(novoPet);
         _db.SalvarClientes();
         return "Pet cadastrado!";
     }
 
     public string DeletarPet(Cliente cliente, string nomePet)
     {
-        var pet = cliente.Pets.FirstOrDefault(p => p.Nome.ToLower() == nomePet.ToLower());
-        if (pet is null) return "Pet nao encontrado.";
-        cliente.Pets.Remove(pet);
+        Pet? petEncontrado = null;
+
+        foreach (var p in cliente.Pets)
+        {
+            if (p.Nome.ToLower() == nomePet.ToLower())
+            {
+                petEncontrado = p;
+            }
+        }
+
+        if (petEncontrado == null)
+        {
+            return "Pet nao encontrado.";
+        }
+
+        cliente.Pets.Remove(petEncontrado);
         _db.SalvarClientes();
         return "Pet removido.";
     }
 
-    // Agendamentos
     public string Agendar(Cliente cliente, string nomePet, Servico servico, DateTime dataHora)
     {
-        if (!cliente.Pets.Any(p => p.Nome.ToLower() == nomePet.ToLower()))
-            return "Pet nao encontrado.";
-        _db.Agendamentos.Add(new Agendamento
+        Pet? petEncontrado = null;
+
+        // Verifica se o pet pertence ao cliente
+        foreach (var p in cliente.Pets)
         {
-            EmailCliente = cliente.Email,
-            NomePet = nomePet,
-            Servico = servico,
-            DataHora = dataHora
-        });
+            if (p.Nome.ToLower() == nomePet.ToLower())
+            {
+                petEncontrado = p;
+            }
+        }
+
+        if (petEncontrado == null)
+        {
+            return "Pet nao encontrado.";
+        }
+
+        Agendamento novoAgendamento = new Agendamento();
+        novoAgendamento.EmailCliente = cliente.Email;
+        novoAgendamento.NomePet = nomePet;
+        novoAgendamento.Servico = servico;
+        novoAgendamento.DataHora = dataHora;
+
+        _db.Agendamentos.Add(novoAgendamento);
         _db.SalvarAgendamentos();
         return "Agendamento realizado!";
     }
 
-    public List<Agendamento> MeusAgendamentos(Cliente cliente) =>
-        _db.Agendamentos.Where(a => a.EmailCliente == cliente.Email).ToList();
+    public List<Agendamento> MeusAgendamentos(Cliente cliente)
+    {
+        List<Agendamento> lista = new List<Agendamento>();
+
+        // Filtra apenas os agendamentos do cliente logado
+        foreach (var a in _db.Agendamentos)
+        {
+            if (a.EmailCliente == cliente.Email)
+            {
+                lista.Add(a);
+            }
+        }
+
+        return lista;
+    }
 
     public string CancelarAgendamento(Cliente cliente, string id)
     {
-        var ag = _db.Agendamentos.FirstOrDefault(a => a.Id == id && a.EmailCliente == cliente.Email);
-        if (ag is null) return "Agendamento nao encontrado.";
-        if (ag.Status == StatusAgendamento.Cancelado) return "Ja esta cancelado.";
-        ag.Status = StatusAgendamento.Cancelado;
+        Agendamento? agEncontrado = null;
+
+        foreach (var a in _db.Agendamentos)
+        {
+            if (a.Id == id && a.EmailCliente == cliente.Email)
+            {
+                agEncontrado = a;
+            }
+        }
+
+        if (agEncontrado == null)
+        {
+            return "Agendamento nao encontrado.";
+        }
+
+        if (agEncontrado.Status == StatusAgendamento.Cancelado)
+        {
+            return "Ja esta cancelado.";
+        }
+
+        agEncontrado.Status = StatusAgendamento.Cancelado;
         _db.SalvarAgendamentos();
         return "Agendamento cancelado.";
     }

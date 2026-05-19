@@ -1,15 +1,19 @@
 ﻿using QuatroPatas;
 
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+// Inicializa o banco de dados e os serviços
 var db = new Database();
 var clienteService = new ClienteService(db);
 var funcService = new FuncionarioService(db);
 
+// Menu principal
 while (true)
 {
     Console.Clear();
     Console.WriteLine("=== QuatroPatas ===");
-    Console.WriteLine("1. Area do Cliente");
-    Console.WriteLine("2. Area do Funcionario");
+    Console.WriteLine("1. Área do Cliente");
+    Console.WriteLine("2. Área do Funcionario");
     Console.WriteLine("0. Sair");
     Console.Write("Opcao: ");
 
@@ -89,6 +93,7 @@ void MenuClienteLogado(Cliente cliente)
                 break;
 
             case "4":
+                // Retorna true se a conta foi deletada
                 if (MenuConfiguracoes(cliente)) return;
                 break;
 
@@ -97,13 +102,12 @@ void MenuClienteLogado(Cliente cliente)
     }
 }
 
-// Retorna true se a conta foi deletada (para sair do loop do cliente logado)
 bool MenuConfiguracoes(Cliente cliente)
 {
     while (true)
     {
         Console.Clear();
-        Console.WriteLine($"=== Configuracoes ===");
+        Console.WriteLine("=== Configuracoes ===");
         Console.WriteLine("1. Ver meus dados");
         Console.WriteLine("2. Editar dados");
         Console.WriteLine("3. Deletar conta");
@@ -127,6 +131,7 @@ bool MenuConfiguracoes(Cliente cliente)
                 break;
 
             case "3":
+                // Dupla confirmação antes de deletar
                 Console.WriteLine("\nTem certeza que deseja deletar sua conta? (s/n)");
                 if (Console.ReadLine()?.ToLower() != "s") break;
                 Console.WriteLine("Confirme digitando seu email: ");
@@ -195,32 +200,73 @@ void MenuAgendar(Cliente cliente)
         return;
     }
 
+    // Escolher pet
     Console.WriteLine("Seus pets:");
-    foreach (var p in cliente.Pets)
-        Console.WriteLine($"  - {p.Nome}");
-    Console.Write("Nome do pet: "); var nomePet = Console.ReadLine() ?? "";
+    for (int i = 0; i < cliente.Pets.Count; i++)
+    {
+        Console.WriteLine($"{i + 1}. {cliente.Pets[i].Nome}");
+    }
+    Console.Write("Escolha o pet: ");
+    string petInput = Console.ReadLine() ?? "";
+    if (!int.TryParse(petInput, out int petIdx) || petIdx < 1 || petIdx > cliente.Pets.Count)
+    {
+        Console.WriteLine("Opcao invalida.");
+        Console.ReadKey();
+        return;
+    }
+    string nomePet = cliente.Pets[petIdx - 1].Nome;
 
+    // Escolher servico
     Console.WriteLine("\nServicos:");
     Console.WriteLine("1. Banho");
     Console.WriteLine("2. Tosa");
     Console.WriteLine("3. Consulta Veterinaria");
     Console.Write("Opcao: ");
-    var servico = Console.ReadLine() switch
+    Servico servico;
+    switch (Console.ReadLine())
     {
-        "1" => Servico.Banho,
-        "2" => Servico.Tosa,
-        "3" => Servico.Consulta,
-        _ => Servico.Banho
-    };
+        case "1": servico = Servico.Banho; break;
+        case "2": servico = Servico.Tosa; break;
+        case "3": servico = Servico.Consulta; break;
+        default:
+            Console.WriteLine("Opcao invalida.");
+            Console.ReadKey();
+            return;
+    }
 
-    Console.Write("Data e hora (dd/MM/yyyy HH:mm): ");
-    if (!DateTime.TryParse(Console.ReadLine(), out var dataHora))
+    // Escolher dia (proximos 5 dias a partir de amanha)
+    int[] horarios = { 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 };
+    Console.WriteLine("\nDias disponiveis:");
+    for (int i = 1; i <= 5; i++)
     {
-        Console.WriteLine("Data invalida.");
+        Console.WriteLine($"{i}. {DateTime.Today.AddDays(i):dd/MM/yyyy}");
+    }
+    Console.Write("Escolha o dia: ");
+    string diaInput = Console.ReadLine() ?? "";
+    if (!int.TryParse(diaInput, out int diaIdx) || diaIdx < 1 || diaIdx > 5)
+    {
+        Console.WriteLine("Opcao invalida.");
+        Console.ReadKey();
+        return;
+    }
+    DateTime diaSelecionado = DateTime.Today.AddDays(diaIdx);
+
+    // Escolher horario
+    Console.WriteLine("\nHorarios disponiveis:");
+    for (int i = 0; i < horarios.Length; i++)
+    {
+        Console.WriteLine($"{i + 1}. {horarios[i]:00}:00");
+    }
+    Console.Write("Escolha o horario: ");
+    string horarioInput = Console.ReadLine() ?? "";
+    if (!int.TryParse(horarioInput, out int horarioIdx) || horarioIdx < 1 || horarioIdx > horarios.Length)
+    {
+        Console.WriteLine("Opcao invalida.");
         Console.ReadKey();
         return;
     }
 
+    DateTime dataHora = diaSelecionado.AddHours(horarios[horarioIdx - 1]);
     Console.WriteLine(clienteService.Agendar(cliente, nomePet, servico, dataHora));
     Console.ReadKey();
 }
@@ -234,25 +280,49 @@ void MenuAgendamentosCliente(Cliente cliente)
         var lista = clienteService.MeusAgendamentos(cliente);
 
         if (lista.Count == 0)
+        {
             Console.WriteLine("Nenhum agendamento.");
-        else
-            foreach (var a in lista)
-                Console.WriteLine($"[{a.Id[..8]}] {a.DataHora:dd/MM/yyyy HH:mm} | {a.Servico} | Pet: {a.NomePet} | {a.Status}");
+            Console.ReadKey();
+            return;
+        }
 
-        Console.WriteLine("\n1. Cancelar agendamento");
+        for (int i = 0; i < lista.Count; i++)
+        {
+            var a = lista[i];
+            Console.WriteLine($"{i + 1}. {a.DataHora:dd/MM/yyyy} - {a.DataHora:HH:mm} | {a.Servico} | Pet: {a.NomePet} | {a.Status}");
+        }
+
+        Console.WriteLine("\nEscolha um agendamento pelo numero ou 0 para voltar: ");
+        Console.Write("Opcao: ");
+        var input = Console.ReadLine();
+
+        if (input == "0") return;
+
+        if (!int.TryParse(input, out int idx) || idx < 1 || idx > lista.Count)
+        {
+            Console.WriteLine("Opcao invalida.");
+            Console.ReadKey();
+            continue;
+        }
+
+        var ag = lista[idx - 1];
+
+        Console.Clear();
+        Console.WriteLine("=== Agendamento ===");
+        Console.WriteLine($"Data:    {ag.DataHora:dd/MM/yyyy} - {ag.DataHora:HH:mm}");
+        Console.WriteLine($"Servico: {ag.Servico}");
+        Console.WriteLine($"Pet:     {ag.NomePet}");
+        Console.WriteLine($"Status:  {ag.Status}");
+        Console.WriteLine("\n1. Cancelar");
         Console.WriteLine("0. Voltar");
         Console.Write("Opcao: ");
 
         switch (Console.ReadLine())
         {
             case "1":
-                Console.Write("ID do agendamento (primeiros 8 chars): "); var idParcial = Console.ReadLine() ?? "";
-                var ag = lista.FirstOrDefault(a => a.Id.StartsWith(idParcial));
-                Console.WriteLine(ag is null ? "Nao encontrado." : clienteService.CancelarAgendamento(cliente, ag.Id));
+                Console.WriteLine(clienteService.CancelarAgendamento(cliente, ag.Id));
                 Console.ReadKey();
                 break;
-
-            case "0": return;
         }
     }
 }
@@ -315,7 +385,7 @@ void MenuGerenciarAgendamentos()
         for (int i = 0; i < todos.Count; i++)
         {
             var a = todos[i];
-            Console.WriteLine($"{i + 1}. {a.DataHora:dd/MM/yyyy HH:mm} | {a.Servico} | Pet: {a.NomePet} | Cliente: {a.EmailCliente} | {a.Status}");
+            Console.WriteLine($"{i + 1}. {a.DataHora:dd/MM/yyyy} - {a.DataHora:HH:mm} | {a.Servico} | Pet: {a.NomePet} | Cliente: {a.EmailCliente} | {a.Status}");
         }
 
         Console.WriteLine("\nEscolha um agendamento pelo numero ou 0 para voltar: ");
@@ -334,8 +404,8 @@ void MenuGerenciarAgendamentos()
         var ag = todos[idx - 1];
 
         Console.Clear();
-        Console.WriteLine($"=== Agendamento ===");
-        Console.WriteLine($"Data:    {ag.DataHora:dd/MM/yyyy HH:mm}");
+        Console.WriteLine("=== Agendamento ===");
+        Console.WriteLine($"Data:    {ag.DataHora:dd/MM/yyyy} - {ag.DataHora:HH:mm}");
         Console.WriteLine($"Servico: {ag.Servico}");
         Console.WriteLine($"Pet:     {ag.NomePet}");
         Console.WriteLine($"Cliente: {ag.EmailCliente}");
