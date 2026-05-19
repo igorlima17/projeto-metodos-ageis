@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 namespace QuatroPatas;
@@ -17,18 +19,21 @@ public class AuthService
     private void Salvar() =>
         File.WriteAllText(DB_PATH, JsonSerializer.Serialize(_usuarios, new JsonSerializerOptions { WriteIndented = true }));
 
+    private static string Hash(string senha) =>
+        Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(senha))).ToLower();
+
     public string Cadastrar(string nome, string email, string senha)
     {
         if (!email.Contains('@')) return "Email invalido.";
         if (_usuarios.Any(u => u.Email == email)) return "Email ja cadastrado.";
 
-        _usuarios.Add(new Usuario { Nome = nome, Email = email, Senha = senha });
+        _usuarios.Add(new Usuario { Nome = nome, Email = email, Senha = Hash(senha) });
         Salvar();
         return "Cadastrado com sucesso!";
     }
 
     public Usuario? Login(string email, string senha) =>
-        _usuarios.FirstOrDefault(u => u.Email == email && u.Senha == senha);
+        _usuarios.FirstOrDefault(u => u.Email == email && u.Senha == Hash(senha));
 
     public string Atualizar(Usuario usuario, string novoNome, string novoEmail)
     {
