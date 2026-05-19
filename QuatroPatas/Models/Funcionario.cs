@@ -1,6 +1,6 @@
 namespace QuatroPatas;
 
-public class Usuario
+public class Funcionario
 {
     public string Nome { get; set; } = "";
     public string Email { get; set; } = "";
