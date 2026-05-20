@@ -310,10 +310,10 @@ void MenuAgendamentosCliente(Cliente cliente)
 
         Console.Clear();
         Console.WriteLine("=== Agendamento ===");
-        Console.WriteLine($"Data:    {ag.DataHora:dd/MM/yyyy} - {ag.DataHora:HH:mm}");
+        Console.WriteLine($"Data: {ag.DataHora:dd/MM/yyyy} - {ag.DataHora:HH:mm}");
         Console.WriteLine($"Servico: {ag.Servico}");
-        Console.WriteLine($"Pet:     {ag.NomePet}");
-        Console.WriteLine($"Status:  {ag.Status}");
+        Console.WriteLine($"Pet: {ag.NomePet}");
+        Console.WriteLine($"Status: {ag.Status}");
         Console.WriteLine("\n1. Cancelar");
         Console.WriteLine("0. Voltar");
         Console.Write("Opcao: ");
