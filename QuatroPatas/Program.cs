@@ -12,8 +12,8 @@ while (true)
 {
     Console.Clear();
     Console.WriteLine("=== QuatroPatas ===");
-    Console.WriteLine("1. Área do Cliente");
-    Console.WriteLine("2. Área do Funcionario");
+    Console.WriteLine("1. Area do Cliente");
+    Console.WriteLine("2. Area do Funcionario");
     Console.WriteLine("0. Sair");
     Console.Write("Opcao: ");
 
