@@ -332,8 +332,9 @@ void MenuAgendamentosCliente(Cliente cliente)
 void MenuFuncionario()
 {
     Console.Clear();
-    Console.WriteLine("=== Area do Funcionario ===");
+    Console.WriteLine("=== Area do Funcionario (digite 0 para voltar) ===");
     Console.Write("Email: "); var email = Console.ReadLine() ?? "";
+    if (email == "0") return;
     Console.Write("Senha: "); var senha = Console.ReadLine() ?? "";
 
     var func = funcService.Login(email, senha);
