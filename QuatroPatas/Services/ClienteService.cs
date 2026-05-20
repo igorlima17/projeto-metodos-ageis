@@ -83,7 +83,7 @@ public class ClienteService
         return "Conta deletada.";
     }
 
-    public string CadastrarPet(Cliente cliente, string nome, string especie, string raca)
+    public string CadastrarPet(Cliente cliente, string nome, string especie, string raca, string idade)
     {
         // Verifica se já existe um pet com o mesmo nome
         foreach (var p in cliente.Pets)
@@ -98,6 +98,7 @@ public class ClienteService
         novoPet.Nome = nome;
         novoPet.Especie = especie;
         novoPet.Raca = raca;
+        novoPet.Idade = idade;
 
         cliente.Pets.Add(novoPet);
         _db.SalvarClientes();

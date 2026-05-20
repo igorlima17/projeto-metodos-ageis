@@ -160,7 +160,7 @@ void MenuPets(Cliente cliente)
             Console.WriteLine("Nenhum pet cadastrado.");
         else
             foreach (var p in cliente.Pets)
-                Console.WriteLine($"- {p.Nome} | {p.Especie} | {p.Raca}");
+                Console.WriteLine($"- {p.Nome} | {p.Especie} | {p.Raca} | {p.Idade} ");
 
         Console.WriteLine("\n1. Cadastrar pet");
         Console.WriteLine("2. Remover pet");
@@ -173,7 +173,8 @@ void MenuPets(Cliente cliente)
                 Console.Write("Nome do pet: "); var nome = Console.ReadLine() ?? "";
                 Console.Write("Especie: "); var especie = Console.ReadLine() ?? "";
                 Console.Write("Raca: "); var raca = Console.ReadLine() ?? "";
-                Console.WriteLine(clienteService.CadastrarPet(cliente, nome, especie, raca));
+                Console.Write("Idade (em anos): "); var idade = Console.ReadLine() ?? "";
+                Console.WriteLine(clienteService.CadastrarPet(cliente, nome, especie, raca, idade));
                 Console.ReadKey();
                 break;
 
