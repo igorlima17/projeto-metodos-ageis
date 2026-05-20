@@ -1,7 +1,5 @@
 ﻿using QuatroPatas;
 
-Console.OutputEncoding = System.Text.Encoding.UTF8;
-
 // Inicializa o banco de dados e os serviços
 var db = new Database();
 var clienteService = new ClienteService(db);
