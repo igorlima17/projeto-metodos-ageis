@@ -50,18 +50,20 @@ Na primeira execução, a pasta `Data/` será criada automaticamente com um func
 
 ```
 QuatroPatas/
-├── Data/                   # JSONs gerados em tempo de execução (ignorado pelo git)
+├── Data/                        # JSONs gerados em tempo de execução (ignorado pelo git)
 │   ├── clientes.json
 │   ├── funcionarios.json
 │   └── agendamentos.json
-├── Agendamento.cs          # Model de agendamento com enums de serviço e status
-├── Cliente.cs              # Model de cliente
-├── Funcionario.cs          # Model de funcionário
-├── Pet.cs                  # Model de pet
-├── Database.cs             # Leitura e escrita dos arquivos JSON
-├── ClienteService.cs       # Regras de negócio do cliente
-├── FuncionarioService.cs   # Regras de negócio do funcionário
-├── Program.cs              # Menus e fluxo da aplicação
+├── Models/                      # Classes que representam os dados do sistema
+│   ├── Agendamento.cs           # Model de agendamento com enums de serviço e status
+│   ├── Cliente.cs               # Model de cliente
+│   ├── Funcionario.cs           # Model de funcionário
+│   └── Pet.cs                   # Model de pet
+├── Services/                    # Regras de negócio e persistência
+│   ├── Database.cs              # Leitura e escrita dos arquivos JSON
+│   ├── ClienteService.cs        # Regras de negócio do cliente
+│   └── FuncionarioService.cs    # Regras de negócio do funcionário
+├── Program.cs                   # Menus e fluxo da aplicação
 └── QuatroPatas.csproj
 ```
 
